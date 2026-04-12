@@ -5,11 +5,12 @@ const app = express()
 
 app.post("/hooks/catch/:userId/:zapId", async (req, res)=>{
     const { userId, zapId } = req.params
-    
-    const resposne = prisma.$transaction(async (tx) =>{
+    const body = req.body
+    const resposne = await prisma.$transaction(async (tx) =>{
         const run = await prisma.zapRun.create({
             data : {
-                zapId : zapId
+                zapId : zapId,
+                metadata : body 
             }
         })
         await prisma.zapRunOutbox.create({
@@ -17,5 +18,6 @@ app.post("/hooks/catch/:userId/:zapId", async (req, res)=>{
                 zapRunId : run.id
             }
         })
+        
     })
 })
